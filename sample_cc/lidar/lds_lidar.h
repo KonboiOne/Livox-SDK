@@ -83,7 +83,7 @@ class LdsLidar {
 
   int InitLdsLidar(std::vector<std::string>& broadcast_code_strs);
   int DeInitLdsLidar(void);
-
+  static void SetMode(LidarMode mode); // available externally
  private:
   LdsLidar();
   LdsLidar(const LdsLidar&) = delete;
@@ -107,7 +107,6 @@ class LdsLidar {
                               uint8_t response, void *clent_data);
   static void SetImuRatePushFrequencyCb(livox_status status, uint8_t handle, \
                                         uint8_t response, void *clent_data);
-
   int AddBroadcastCodeToWhitelist(const char* broadcast_code);
   void AddLocalBroadcastCode(void);
   bool FindInWhitelist(const char* broadcast_code);

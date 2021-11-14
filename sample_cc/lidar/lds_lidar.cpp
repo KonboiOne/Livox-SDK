@@ -341,7 +341,21 @@ void LdsLidar::SetPointCloudReturnModeCb(livox_status status, uint8_t handle, \
     printf("Set return mode fail, try again!\n");
   }
 }
+void callback(livox_status status, uint8_t handle, uint8_t response, void *client_data)
+{
+  printf("setmode callback\n");
+}
+void LdsLidar::SetMode(LidarMode mode)
+{
 
+  uint8_t handle = 0;
+  if (handle >= kMaxLidarCount)
+  {
+    return;
+  }
+  printf("set mode\n");
+  LidarSetMode(0, mode, &callback, nullptr);
+}
 void LdsLidar::SetCoordinateCb(livox_status status, uint8_t handle, \
                                uint8_t response, void *client_data) {
   LdsLidar* lds_lidar = static_cast<LdsLidar *>(client_data);

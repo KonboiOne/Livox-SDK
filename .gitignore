@@ -8,6 +8,7 @@ build/CMakeFiles
 build/sdk_core
 build/sample
 build/sample_cc
+build/compile_commands.json
 
 #whitelist
 !build/notes.txt
