@@ -82,8 +82,7 @@ void HubDataHandlerImpl::OnData(socket_t, void *) {
   if (buf_.size() < kMaxBufferSize) {
     buf_.resize(kMaxBufferSize);
   }
-  int size = kMaxBufferSize;
-  size = util::RecvFrom(sock_, reinterpret_cast<char *>(&buf_[0]), kMaxBufferSize, 0, &addr, &addrlen);
+  const auto size = util::RecvFrom(sock_, reinterpret_cast<char *>(&buf_[0]), kMaxBufferSize, 0, &addr, &addrlen);
   if (size <= 0) {
     return;
   }

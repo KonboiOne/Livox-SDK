@@ -115,8 +115,7 @@ void LidarDataHandlerImpl::OnData(socket_t sock, void *client_data) {
     buf.reset(new char[kMaxBufferSize]);
   }
 
-  int size = kMaxBufferSize;
-  size = util::RecvFrom(sock, reinterpret_cast<char *>(buf.get()), kMaxBufferSize, 0, &addr, &addrlen);
+  const auto size = util::RecvFrom(sock, reinterpret_cast<char *>(buf.get()), kMaxBufferSize, 0, &addr, &addrlen);
   if (size <= 0) {
     return;
   }

@@ -181,7 +181,7 @@ bool ParseRmcTime(const char* rmc, uint16_t rmc_len, LidarSetUtcSyncTimeRequest*
     return false;
   }
 
-  int time_buff_size = strlen(utc_yy_buff);
+  const auto time_buff_size = strlen(utc_yy_buff);
   uint8_t temp_time = 0;
   switch (time_buff_size) {
     case sizeof("yyyy")-1:

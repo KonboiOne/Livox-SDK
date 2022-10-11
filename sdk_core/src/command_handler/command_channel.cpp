@@ -76,8 +76,7 @@ void CommandChannel::OnData(socket_t , void *) {
   int addrlen = sizeof(addr);
   uint32_t buf_size = 0;
   uint8_t *cache_buf = comm_port_->FetchCacheFreeSpace(&buf_size);
-  int size = buf_size;
-  size = util::RecvFrom(sock_, reinterpret_cast<char *>(cache_buf), buf_size, 0, &addr, &addrlen);
+  const auto size = util::RecvFrom(sock_, reinterpret_cast<char *>(cache_buf), buf_size, 0, &addr, &addrlen);
   if (size <= 0) {
     return;
   }
@@ -199,7 +198,7 @@ void CommandChannel::SendInternal(const Command &command) {
   servaddr.sin_port = htons(65000);
   servaddr.sin_addr.s_addr = inet_addr(remote_ip_.c_str());
 
-  int byte_send = sendto(sock_, (const char*)buf.data(), size, 0, (const struct sockaddr *) &servaddr,
+  const auto byte_send = sendto(sock_, (const char*)buf.data(), size, 0, (const struct sockaddr *) &servaddr,
             sizeof(servaddr));
   if (byte_send < 0) {
     if (command.cb) {

@@ -68,8 +68,7 @@ void DeviceDiscovery::OnData(socket_t sock, void *) {
   int addrlen = sizeof(addr);
   uint32_t buf_size = 0;
   uint8_t *cache_buf = comm_port_->FetchCacheFreeSpace(&buf_size);
-  int size = buf_size;
-  size = util::RecvFrom(sock, reinterpret_cast<char *>(cache_buf), buf_size, 0, &addr, &addrlen);
+  const auto size = util::RecvFrom(sock, reinterpret_cast<char *>(cache_buf), buf_size, 0, &addr, &addrlen);
   if (size < 0) {
     return;
   }
@@ -218,7 +217,7 @@ void DeviceDiscovery::OnBroadcast(const CommPacket &packet,  struct sockaddr *ad
     vector<uint8_t> buf(kMaxCommandBufferSize + 1);
     int o_len = kMaxCommandBufferSize;
     comm_port_->Pack(buf.data(), kMaxCommandBufferSize, (uint32_t *)&o_len, packet);
-    int byte_send = sendto(cmd_sock, reinterpret_cast<const char *>(buf.data()), o_len, 0, addr, sizeof(*addr));
+    const auto byte_send = sendto(cmd_sock, reinterpret_cast<const char *>(buf.data()), o_len, 0, addr, sizeof(*addr));
     if (byte_send < 0) {
       return;
     }
