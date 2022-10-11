@@ -61,7 +61,8 @@ typedef struct TagCommand {
 } Command;
 
 class CommandChannelDelegate {
- public:
+public:
+  virtual ~CommandChannelDelegate() = default;
   virtual void OnCommand(uint8_t handle, const Command &command) = 0;
   virtual void OnHeartbeatStateUpdate(uint8_t handle, const HeartbeatResponse &state) = 0;
 };

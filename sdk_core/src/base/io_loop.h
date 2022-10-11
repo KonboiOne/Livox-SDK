@@ -48,7 +48,8 @@ class IOLoop : public noncopyable {
  typedef std::function<void(void)> IOLoopTask;
 
   class IOLoopDelegate {
-   public:
+  public:
+    virtual ~IOLoopDelegate() = default;
     virtual void OnData(socket_t, void *) {}
     virtual void OnTimer(std::chrono::steady_clock::time_point) {}
     virtual void OnWake() {}
