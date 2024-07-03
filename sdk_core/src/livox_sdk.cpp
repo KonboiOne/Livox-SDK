@@ -122,10 +122,6 @@ bool Start() {
   return false;
 }
 
-void SaveLoggerFile() {
-  is_save_log_file = true;
-}
+void SaveLoggerFile() {}
 
-void DisableConsoleLogger() {
-  is_console_log_enable = false;
-}
+void DisableConsoleLogger() {}

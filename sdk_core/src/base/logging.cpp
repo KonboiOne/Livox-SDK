@@ -24,9 +24,11 @@
 
 #include "logging.h"
 
+namespace {
 std::shared_ptr<spdlog::logger> logger = NULL;
 bool is_save_log_file = false;
 bool is_console_log_enable = true;
+} // namespace
 
 void InitLogger() {
 
@@ -43,17 +45,19 @@ void InitLogger() {
   }
 
   if (is_save_log_file) {
-    auto rotateSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>("livox_log.txt", 1024 * 1024 * 5, 2);
+    auto rotateSink = std::make_shared<spdlog::sinks::rotating_file_sink_mt>(
+        "livox_log.txt", 1024 * 1024 * 5, 2);
     rotateSink->set_level(spdlog::level::debug);
     sinkList.push_back(rotateSink);
   }
 
-  logger = std::make_shared<spdlog::logger>("console", begin(sinkList), end(sinkList));
+  logger = std::make_shared<spdlog::logger>("console", begin(sinkList),
+                                            end(sinkList));
   spdlog::register_logger(logger);
   logger->set_level(spdlog::level::debug);
   logger->flush_on(spdlog::level::debug);
 }
 
-void UninitLogger() {
-  spdlog::drop_all();
-}
+void UninitLogger() {}
+
+std::shared_ptr<spdlog::logger> GetLogger() { return logger; }

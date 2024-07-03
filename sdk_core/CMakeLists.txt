@@ -13,7 +13,6 @@ target_include_directories(${SDK_LIBRARY}
         PUBLIC
         include
         include/third_party/FastCRC
-        include/third_party/spdlog
         include/third_party/cmdline
         PRIVATE
         src)
