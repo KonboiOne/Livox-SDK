@@ -24,40 +24,15 @@
 
 #ifndef LIVOX_LOGGING_H_
 #define LIVOX_LOGGING_H_
-#include <spdlog/sinks/rotating_file_sink.h>
-#include <spdlog/sinks/stdout_color_sinks.h>
-#include <spdlog/spdlog.h>
-
-#ifdef _WIN32
-#define __FILENAME__ (strrchr(__FILE__, '\\') ? (strrchr(__FILE__, '\\') + 1):__FILE__)
-#else
-#define __FILENAME__ (strrchr(__FILE__, '/') ? (strrchr(__FILE__, '/') + 1):__FILE__)
-#endif
-
-#ifndef suffix
-#define suffix(msg)  std::string(msg).append("  [")\
-        .append(__FILENAME__).append("] [").append(__func__)\
-        .append("] [").append(std::to_string(__LINE__))\
-        .append("]").c_str()
-#endif
-
-#ifndef SPDLOG_TRACE_ON
-#define SPDLOG_TRACE_ON
-#endif
-
-#ifndef SPDLOG_DEBUG_ON
-#define SPDLOG_DEBUG_ON
-#endif
 
 void InitLogger();
 void UninitLogger();
-std::shared_ptr<spdlog::logger> GetLogger();
 
-#define LOG_TRACE(msg, ...) GetLogger()->trace(suffix(msg), ##__VA_ARGS__)
-#define LOG_DEBUG(msg, ...) GetLogger()->debug(suffix(msg), ##__VA_ARGS__)
-#define LOG_INFO(msg, ...) GetLogger()->info(suffix(msg), ##__VA_ARGS__)
-#define LOG_WARN(msg, ...) GetLogger()->warn(suffix(msg), ##__VA_ARGS__)
-#define LOG_ERROR(msg, ...) GetLogger()->error(suffix(msg), ##__VA_ARGS__)
-#define LOG_FATAL(msg, ...) GetLogger()->critical(suffix(msg), ##__VA_ARGS__)
+#define LOG_TRACE(msg, ...)
+#define LOG_DEBUG(msg, ...)
+#define LOG_INFO(msg, ...)
+#define LOG_WARN(msg, ...)
+#define LOG_ERROR(msg, ...)
+#define LOG_FATAL(msg, ...)
 
 #endif // LIVOX_LOGGING_H_

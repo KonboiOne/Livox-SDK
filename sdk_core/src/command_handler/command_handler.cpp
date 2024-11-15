@@ -23,20 +23,21 @@
 //
 
 #include "command_handler.h"
-#include <mutex>
 #include "base/logging.h"
 #include "command_impl.h"
 #include "device_manager.h"
 #include "hub_command_handler.h"
 #include "lidar_command_handler.h"
+#include <cassert>
+#include <mutex>
 
-using std::lock_guard;
-using std::mutex;
-using std::shared_ptr;
 using std::list;
+using std::lock_guard;
 using std::make_pair;
 using std::multimap;
+using std::mutex;
 using std::pair;
+using std::shared_ptr;
 
 namespace livox {
 
@@ -47,15 +48,15 @@ CommandHandler &command_handler() {
 
 uint16_t GetCommandTimeout(uint8_t command_set, uint8_t command_id) {
   switch (command_set) {
-    case kCommandSetGeneral:
-      assert(command_id < sizeof(GeneralCommandTimeout));
-      return GeneralCommandTimeout[command_id];
-    case kCommandSetLidar:
-      assert(command_id < sizeof(LidarCommandTimeout));
-      return LidarCommandTimeout[command_id];
-    case kCommandSetHub:
-      assert(command_id < sizeof(HubCommandTimeout));
-      return HubCommandTimeout[command_id];
+  case kCommandSetGeneral:
+    assert(command_id < sizeof(GeneralCommandTimeout));
+    return GeneralCommandTimeout[command_id];
+  case kCommandSetLidar:
+    assert(command_id < sizeof(LidarCommandTimeout));
+    return LidarCommandTimeout[command_id];
+  case kCommandSetHub:
+    assert(command_id < sizeof(HubCommandTimeout));
+    return HubCommandTimeout[command_id];
   }
   return KDefaultTimeOut;
 }
@@ -65,11 +66,12 @@ bool IsSubLidarException(const Command &command) {
     return false;
   }
   if (!(command.packet.cmd_set == kCommandSetGeneral &&
-      command.packet.cmd_code == kCommandIDGeneralPushAbnormalState)) {
+        command.packet.cmd_code == kCommandIDGeneralPushAbnormalState)) {
     return false;
   }
 
-  HubErrorCode* hub_error_code = static_cast<HubErrorCode *>((void *)command.packet.data);
+  HubErrorCode *hub_error_code =
+      static_cast<HubErrorCode *>((void *)command.packet.data);
   if (hub_error_code->lidar_link_status == 0x01) {
     return true;
   }
@@ -115,43 +117,40 @@ void CommandHandler::Uninit() {
 
 void CommandHandler::OnCommand(uint8_t handle, const Command &command) {
   if (command.packet.packet_type == kCommandTypeAck) {
-    LOG_INFO(" Recieve Ack: Set {} Id {} Seq {}", (uint16_t)command.packet.cmd_set, command.packet.cmd_code, command.packet.seq_num);
+    LOG_INFO(" Recieve Ack: Set {} Id {} Seq {}",
+             (uint16_t)command.packet.cmd_set, command.packet.cmd_code,
+             command.packet.seq_num);
     OnCommandAck(handle, command);
   } else if (command.packet.packet_type == kCommandTypeMsg) {
-    LOG_INFO(" Recieve Message: Set {} Id {} Seq {}", (uint16_t)command.packet.cmd_set, command.packet.cmd_code, command.packet.seq_num);
+    LOG_INFO(" Recieve Message: Set {} Id {} Seq {}",
+             (uint16_t)command.packet.cmd_set, command.packet.cmd_code,
+             command.packet.seq_num);
     OnCommandMsg(handle, command);
   }
 }
 
-livox_status CommandHandler::SendCommand(uint8_t handle,
-                                         uint8_t command_set,
-                                         uint8_t command_id,
-                                         uint8_t *data,
-                                         uint16_t length,
-                                         const shared_ptr<CommandCallback> &cb) {
+livox_status
+CommandHandler::SendCommand(uint8_t handle, uint8_t command_set,
+                            uint8_t command_id, uint8_t *data, uint16_t length,
+                            const shared_ptr<CommandCallback> &cb) {
   if (impl_ == NULL) {
     return kStatusHandlerImplNotExist;
   }
 
-  Command cmd(handle,
-              kCommandTypeCmd,
-              command_set,
-              command_id,
-              CommandChannel::GenerateSeq(),
-              data,
-              length,
-              GetCommandTimeout(command_set, command_id),
-              cb);
+  Command cmd(handle, kCommandTypeCmd, command_set, command_id,
+              CommandChannel::GenerateSeq(), data, length,
+              GetCommandTimeout(command_set, command_id), cb);
   livox_status result = impl_->SendCommand(handle, cmd);
   return result;
 }
 
-livox_status CommandHandler::RegisterPush(uint8_t handle,
-                                          uint8_t command_set,
-                                          uint8_t command_id,
-                                          const shared_ptr<CommandCallback> &cb) {
+livox_status
+CommandHandler::RegisterPush(uint8_t handle, uint8_t command_set,
+                             uint8_t command_id,
+                             const shared_ptr<CommandCallback> &cb) {
   lock_guard<mutex> lock(mutex_);
-  Command req(handle, kCommandTypeMsg, command_set, command_id, 0, NULL, 0, 0, cb);
+  Command req(handle, kCommandTypeMsg, command_set, command_id, 0, NULL, 0, 0,
+              cb);
   message_registers_.insert(make_pair(MakeKey(command_set, command_id), req));
   return kStatusSuccess;
 }
@@ -166,7 +165,7 @@ void CommandHandler::OnCommandAck(uint8_t handle, const Command &command) {
   }
 
   if (IsMidDeviceIpResponse(command)) {
-    GetDeviceIpModeResponse  response;
+    GetDeviceIpModeResponse response;
     memcpy(&response, command.packet.data, command.packet.data_len);
     uint8_t net_mask[4] = {255, 255, 255, 0};
     memcpy(&response.net_mask, net_mask, 4);
@@ -183,10 +182,14 @@ void CommandHandler::OnCommandMsg(uint8_t handle, const Command &command) {
   list<Command> commands;
   {
     lock_guard<mutex> lock(mutex_);
-    pair<multimap<uint16_t, Command>::iterator, multimap<uint16_t, Command>::iterator> ret;
-    ret = message_registers_.equal_range(MakeKey(command.packet.cmd_set, command.packet.cmd_code));
+    pair<multimap<uint16_t, Command>::iterator,
+         multimap<uint16_t, Command>::iterator>
+        ret;
+    ret = message_registers_.equal_range(
+        MakeKey(command.packet.cmd_set, command.packet.cmd_code));
 
-    for (multimap<uint16_t, Command>::iterator ite = ret.first; ite != ret.second; ++ite) {
+    for (multimap<uint16_t, Command>::iterator ite = ret.first;
+         ite != ret.second; ++ite) {
       if (ite->second.handle == handle) {
         commands.push_back(ite->second);
       }
@@ -196,7 +199,8 @@ void CommandHandler::OnCommandMsg(uint8_t handle, const Command &command) {
     OnSubLidarDisconnect();
   }
 
-  for (list<Command>::iterator ite = commands.begin(); ite != commands.end(); ++ite) {
+  for (list<Command>::iterator ite = commands.begin(); ite != commands.end();
+       ++ite) {
     if (ite->cb) {
       (*ite->cb)(kStatusSuccess, handle, command.packet.data);
     }
@@ -209,8 +213,9 @@ void CommandHandler::RemoveDevice(uint8_t handle) {
   };
 }
 
-void CommandHandler::OnHeartbeatStateUpdate(uint8_t handle, const HeartbeatResponse &state) {
+void CommandHandler::OnHeartbeatStateUpdate(uint8_t handle,
+                                            const HeartbeatResponse &state) {
   device_manager().UpdateDeviceState(handle, state);
 }
 
-}  // namespace livox
+} // namespace livox
